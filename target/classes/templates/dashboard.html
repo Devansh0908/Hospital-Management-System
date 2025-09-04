@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management - Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo i {
+            font-size: 1.5rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+        }
+        
+        .logout-btn {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .welcome-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .welcome-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+        
+        .welcome-section p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card.patients {
+            border-left-color: #4a90e2;
+        }
+        
+        .stat-card.doctors {
+            border-left-color: #27ae60;
+        }
+        
+        .stat-card.appointments {
+            border-left-color: #f39c12;
+        }
+        
+        .stat-card.revenue {
+            border-left-color: #e74c3c;
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .quick-actions {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .quick-actions h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #2c3e50;
+        }
+        
+        .action-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .action-btn i {
+            font-size: 1.5rem;
+            color: #4a90e2;
+        }
+        
+        .action-btn span {
+            font-weight: 500;
+        }
+        
+        .recent-activity {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .recent-activity h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .activity-icon.success {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+        }
+        
+        .activity-icon.info {
+            background: rgba(74, 144, 226, 0.1);
+            color: #4a90e2;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .main-content {
+                padding: 0 1rem;
+            }
+            
+            .welcome-section {
+                padding: 2rem;
+            }
+            
+            .welcome-section h2 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-hospital"></i>
+                <h1>Hospital Management</h1>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Welcome, Admin</span>
+                </div>
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="welcome-section">
+            <h2>Dashboard Overview</h2>
+            <p>Welcome to your hospital management dashboard. Monitor key metrics, manage operations, and stay updated with real-time information.</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card patients">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-number">1,247</div>
+                        <div class="stat-label">Total Patients</div>
+                    </div>
+                    <i class="fas fa-users stat-icon"></i>
+                </div>
+            </div>
+            
+            <div class="stat-card doctors">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-number">89</div>
+                        <div class="stat-label">Active Doctors</div>
+                    </div>
+                    <i class="fas fa-user-md stat-icon"></i>
+                </div>
+            </div>
+            
+            <div class="stat-card appointments">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-number">156</div>
+                        <div class="stat-label">Today's Appointments</div>
+                    </div>
+                    <i class="fas fa-calendar-check stat-icon"></i>
+                </div>
+            </div>
+            
+            <div class="stat-card revenue">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-number">$45,280</div>
+                        <div class="stat-label">Monthly Revenue</div>
+                    </div>
+                    <i class="fas fa-dollar-sign stat-icon"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="actions-grid">
+                <button class="action-btn">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Add New Patient</span>
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span>Schedule Appointment</span>
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-file-medical"></i>
+                    <span>Medical Records</span>
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-pills"></i>
+                    <span>Pharmacy</span>
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-bed"></i>
+                    <span>Room Management</span>
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="recent-activity">
+            <h3>Recent Activity</h3>
+            <div class="activity-item">
+                <div class="activity-icon success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">New patient registered: John Smith</div>
+                    <div class="activity-time">2 minutes ago</div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon info">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Appointment scheduled with Dr. Johnson</div>
+                    <div class="activity-time">15 minutes ago</div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon success">
+                    <i class="fas fa-file-medical"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Medical record updated for Patient #1234</div>
+                    <div class="activity-time">1 hour ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

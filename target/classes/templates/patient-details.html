@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details - Hospital Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .alert-success {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(39, 174, 96, 0.2);
+        }
+
+        .alert-error {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .patient-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .patient-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .patient-info h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .patient-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #7f8c8d;
+        }
+
+        .meta-item i {
+            color: #3498db;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-active { background: rgba(39, 174, 96, 0.1); color: #27ae60; }
+        .status-inactive { background: rgba(243, 156, 18, 0.1); color: #f39c12; }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .details-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #7f8c8d;
+        }
+
+        .detail-value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .medical-history {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            margin-top: 1rem;
+        }
+
+        .medical-history h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .medical-history p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .patient-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .patient-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-user"></i>
+                <h1>Patient Details</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/admin/patient-management" class="nav-link">
+                    <i class="fas fa-arrow-left"></i> Back to Patients
+                </a>
+                <a href="/admin-dashboard" class="nav-link">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="/logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}">Success message</span>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}">Error message</span>
+        </div>
+
+        <!-- Patient Header -->
+        <div class="patient-header">
+            <div class="patient-avatar" th:text="${patient.firstName.substring(0,1) + patient.lastName.substring(0,1)}">JD</div>
+            <div class="patient-info">
+                <h2 th:text="${patient.fullName}">John Doe</h2>
+                <div class="patient-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-id-card"></i>
+                        <span th:text="'Patient ID: ' + ${patient.patientId}">Patient ID: P001</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span th:text="'Age: ' + ${patient.age}">Age: 25</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-venus-mars"></i>
+                        <span th:text="${patient.gender}">Male</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-tint"></i>
+                        <span th:text="${patient.bloodGroup?.displayName ?: 'N/A'}">A+</span>
+                    </div>
+                </div>
+                <span class="status-badge" 
+                      th:classappend="${patient.status.name().toLowerCase() == 'active' ? 'status-active' : 'status-inactive'}"
+                      th:text="${patient.status}">Active</span>
+            </div>
+        </div>
+
+        <!-- Patient Details Grid -->
+        <div class="details-grid">
+            <!-- Personal Information -->
+            <div class="details-section">
+                <h3 class="section-title">
+                    <i class="fas fa-user"></i>
+                    Personal Information
+                </h3>
+                <div class="detail-item">
+                    <span class="detail-label">Full Name</span>
+                    <span class="detail-value" th:text="${patient.fullName}">John Doe</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Date of Birth</span>
+                    <span class="detail-value" th:text="${#temporals.format(patient.dateOfBirth, 'MMM dd, yyyy')}">Jan 15, 1990</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Gender</span>
+                    <span class="detail-value" th:text="${patient.gender}">Male</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Blood Group</span>
+                    <span class="detail-value" th:text="${patient.bloodGroup?.displayName ?: 'Not specified'}">A+</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Marital Status</span>
+                    <span class="detail-value" th:text="${patient.maritalStatus ?: 'Not specified'}">Single</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Nationality</span>
+                    <span class="detail-value" th:text="${patient.nationality ?: 'Not specified'}">American</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Occupation</span>
+                    <span class="detail-value" th:text="${patient.occupation ?: 'Not specified'}">Engineer</span>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="details-section">
+                <h3 class="section-title">
+                    <i class="fas fa-phone"></i>
+                    Contact Information
+                </h3>
+                <div class="detail-item">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value" th:text="${patient.email}">john.doe@email.com</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Phone</span>
+                    <span class="detail-value" th:text="${patient.phone}">+1234567890</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Address</span>
+                    <span class="detail-value" th:text="${patient.address}">123 Main St</span>
+                </div>
+                <div class="detail-item" th:if="${patient.city}">
+                    <span class="detail-label">City</span>
+                    <span class="detail-value" th:text="${patient.city}">New York</span>
+                </div>
+                <div class="detail-item" th:if="${patient.state}">
+                    <span class="detail-label">State</span>
+                    <span class="detail-value" th:text="${patient.state}">NY</span>
+                </div>
+                <div class="detail-item" th:if="${patient.zipCode}">
+                    <span class="detail-label">ZIP Code</span>
+                    <span class="detail-value" th:text="${patient.zipCode}">10001</span>
+                </div>
+                <div class="detail-item" th:if="${patient.country}">
+                    <span class="detail-label">Country</span>
+                    <span class="detail-value" th:text="${patient.country}">USA</span>
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="details-section">
+                <h3 class="section-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Emergency Contact
+                </h3>
+                <div class="detail-item" th:if="${patient.emergencyContact}">
+                    <span class="detail-label">Contact Name</span>
+                    <span class="detail-value" th:text="${patient.emergencyContact}">Jane Doe</span>
+                </div>
+                <div class="detail-item" th:if="${patient.emergencyPhone}">
+                    <span class="detail-label">Contact Phone</span>
+                    <span class="detail-value" th:text="${patient.emergencyPhone}">+1234567891</span>
+                </div>
+                <div class="detail-item" th:if="${patient.emergencyRelation}">
+                    <span class="detail-label">Relationship</span>
+                    <span class="detail-value" th:text="${patient.emergencyRelation}">Spouse</span>
+                </div>
+                <div th:if="${!patient.emergencyContact and !patient.emergencyPhone}">
+                    <p style="color: #7f8c8d; font-style: italic;">No emergency contact information provided</p>
+                </div>
+            </div>
+
+            <!-- Insurance Information -->
+            <div class="details-section">
+                <h3 class="section-title">
+                    <i class="fas fa-shield-alt"></i>
+                    Insurance Information
+                </h3>
+                <div class="detail-item" th:if="${patient.insuranceProvider}">
+                    <span class="detail-label">Provider</span>
+                    <span class="detail-value" th:text="${patient.insuranceProvider}">Blue Cross</span>
+                </div>
+                <div class="detail-item" th:if="${patient.insurancePolicyNumber}">
+                    <span class="detail-label">Policy Number</span>
+                    <span class="detail-value" th:text="${patient.insurancePolicyNumber}">BC123456789</span>
+                </div>
+                <div class="detail-item" th:if="${patient.insuranceGroupNumber}">
+                    <span class="detail-label">Group Number</span>
+                    <span class="detail-value" th:text="${patient.insuranceGroupNumber}">GRP001</span>
+                </div>
+                <div th:if="${!patient.insuranceProvider and !patient.insurancePolicyNumber}">
+                    <p style="color: #7f8c8d; font-style: italic;">No insurance information provided</p>
+                </div>
+            </div>
+
+            <!-- Medical Information -->
+            <div class="details-section full-width">
+                <h3 class="section-title">
+                    <i class="fas fa-heartbeat"></i>
+                    Medical Information
+                </h3>
+                <div class="detail-item">
+                    <span class="detail-label">Assigned Doctor</span>
+                    <span class="detail-value" th:text="${patient.doctor?.firstName + ' ' + patient.doctor?.lastName ?: 'Not assigned'}">Dr. Smith</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Registration Date</span>
+                    <span class="detail-value" th:text="${#temporals.format(patient.registrationDate, 'MMM dd, yyyy HH:mm')}">Jan 15, 2024 10:30</span>
+                </div>
+                <div class="detail-item" th:if="${patient.lastVisit}">
+                    <span class="detail-label">Last Visit</span>
+                    <span class="detail-value" th:text="${#temporals.format(patient.lastVisit, 'MMM dd, yyyy HH:mm')}">Feb 10, 2024 14:15</span>
+                </div>
+
+                <!-- Medical History -->
+                <div th:if="${patient.medicalHistory}" class="medical-history">
+                    <h4>Medical History</h4>
+                    <p th:text="${patient.medicalHistory}">Patient medical history details...</p>
+                </div>
+
+                <!-- Allergies -->
+                <div th:if="${patient.allergies}" class="medical-history" style="border-left-color: #e74c3c;">
+                    <h4>Allergies</h4>
+                    <p th:text="${patient.allergies}">Patient allergies...</p>
+                </div>
+
+                <!-- Current Medications -->
+                <div th:if="${patient.currentMedications}" class="medical-history" style="border-left-color: #f39c12;">
+                    <h4>Current Medications</h4>
+                    <p th:text="${patient.currentMedications}">Current medications...</p>
+                </div>
+
+                <!-- Additional Notes -->
+                <div th:if="${patient.notes}" class="medical-history" style="border-left-color: #9b59b6;">
+                    <h4>Additional Notes</h4>
+                    <p th:text="${patient.notes}">Additional notes...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="openEditModal()">
+                <i class="fas fa-edit"></i> Edit Patient
+            </button>
+            <form th:if="${patient.status.name() == 'ACTIVE'}" 
+                  action="/admin/update-patient-status" method="post" style="display: inline;">
+                <input type="hidden" name="patientId" th:value="${patient.id}">
+                <input type="hidden" name="status" value="INACTIVE">
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-pause"></i> Deactivate
+                </button>
+            </form>
+            <form th:if="${patient.status.name() == 'INACTIVE'}" 
+                  action="/admin/update-patient-status" method="post" style="display: inline;">
+                <input type="hidden" name="patientId" th:value="${patient.id}">
+                <input type="hidden" name="status" value="ACTIVE">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-play"></i> Activate
+                </button>
+            </form>
+            <form action="/admin/delete-patient" method="post" style="display: inline;" 
+                  onsubmit="return confirm('Are you sure you want to delete this patient? This action cannot be undone.')">
+                <input type="hidden" name="patientId" th:value="${patient.id}">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Delete Patient
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal() {
+            // This would open an edit modal - for now, we'll redirect to a simple alert
+            alert('Edit functionality will be implemented in the next phase. For now, you can update patient status or delete the patient.');
+        }
+    </script>
+</body>
+
+</html>

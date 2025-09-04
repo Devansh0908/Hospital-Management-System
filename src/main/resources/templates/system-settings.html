@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - Hospital Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo i {
+            font-size: 1.5rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        
+        .page-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .settings-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        
+        .settings-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .section-content {
+            padding: 2rem;
+        }
+        
+        .settings-tabs {
+            display: flex;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 2rem;
+        }
+        
+        .tab-button {
+            padding: 1rem 1.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #7f8c8d;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active {
+            color: #8e44ad;
+            border-bottom-color: #8e44ad;
+        }
+        
+        .tab-button:hover {
+            color: #8e44ad;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #8e44ad;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .system-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .info-value {
+            color: #7f8c8d;
+            font-family: monospace;
+        }
+        
+        .memory-usage {
+            margin-bottom: 1rem;
+        }
+        
+        .memory-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .memory-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            transition: width 0.3s ease;
+        }
+        
+        .logs-section {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .log-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .log-item:last-child {
+            border-bottom: none;
+        }
+        
+        .log-level {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .log-level.info {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+        
+        .log-level.warn {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+        }
+        
+        .log-level.error {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+        
+        .log-content {
+            flex: 1;
+        }
+        
+        .log-message {
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+        
+        .log-details {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .log-time {
+            font-size: 0.8rem;
+            color: #95a5a6;
+            min-width: 120px;
+        }
+        
+        @media (max-width: 768px) {
+            .settings-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 0 1rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .system-info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .settings-tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-cogs"></i>
+                <h1>System Settings</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/admin-dashboard" class="nav-link">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+                <a href="/logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h2>System Settings</h2>
+            <p>Configure system preferences, security settings, and application behavior</p>
+        </div>
+        
+        <div class="settings-layout">
+            <!-- Settings Configuration -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <h3>Configuration Settings</h3>
+                </div>
+                <div class="section-content">
+                    <div class="settings-tabs">
+                        <button class="tab-button active" onclick="showTab('general')">General</button>
+                        <button class="tab-button" onclick="showTab('security')">Security</button>
+                        <button class="tab-button" onclick="showTab('notifications')">Notifications</button>
+                        <button class="tab-button" onclick="showTab('backup')">Backup</button>
+                    </div>
+                    
+                    <form action="/admin/update-settings" method="post">
+                        <!-- General Settings Tab -->
+                        <div id="general" class="tab-content active">
+                            <div class="form-group">
+                                <label for="hospitalName">Hospital Name</label>
+                                <input type="text" id="hospitalName" name="hospital.name" 
+                                       th:value="${allSettings.general.hospitalName}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="hospitalAddress">Hospital Address</label>
+                                <textarea id="hospitalAddress" name="hospital.address" rows="3" 
+                                          th:text="${allSettings.general.hospitalAddress}"></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="hospitalPhone">Phone Number</label>
+                                    <input type="tel" id="hospitalPhone" name="hospital.phone" 
+                                           th:value="${allSettings.general.hospitalPhone}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hospitalEmail">Email Address</label>
+                                    <input type="email" id="hospitalEmail" name="hospital.email" 
+                                           th:value="${allSettings.general.hospitalEmail}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="timezone">Timezone</label>
+                                    <select id="timezone" name="system.timezone">
+                                        <option value="America/New_York" th:selected="${allSettings.system.timezone == 'America/New_York'}">Eastern Time</option>
+                                        <option value="America/Chicago" th:selected="${allSettings.system.timezone == 'America/Chicago'}">Central Time</option>
+                                        <option value="America/Denver" th:selected="${allSettings.system.timezone == 'America/Denver'}">Mountain Time</option>
+                                        <option value="America/Los_Angeles" th:selected="${allSettings.system.timezone == 'America/Los_Angeles'}">Pacific Time</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="language">Language</label>
+                                    <select id="language" name="system.language">
+                                        <option value="English" th:selected="${allSettings.system.language == 'English'}">English</option>
+                                        <option value="Spanish" th:selected="${allSettings.system.language == 'Spanish'}">Spanish</option>
+                                        <option value="French" th:selected="${allSettings.system.language == 'French'}">French</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Security Settings Tab -->
+                        <div id="security" class="tab-content">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="sessionTimeout">Session Timeout (minutes)</label>
+                                    <input type="number" id="sessionTimeout" name="security.sessionTimeout" 
+                                           th:value="${allSettings.security.sessionTimeout}" min="5" max="480">
+                                </div>
+                                <div class="form-group">
+                                    <label for="passwordMinLength">Minimum Password Length</label>
+                                    <input type="number" id="passwordMinLength" name="security.passwordMinLength" 
+                                           th:value="${allSettings.security.passwordMinLength}" min="6" max="20">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="maxLoginAttempts">Max Login Attempts</label>
+                                    <input type="number" id="maxLoginAttempts" name="security.maxLoginAttempts" 
+                                           th:value="${allSettings.security.maxLoginAttempts}" min="3" max="10">
+                                </div>
+                                <div class="form-group">
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="requireSpecialChars" name="security.requireSpecialChars" 
+                                               th:checked="${allSettings.security.requireSpecialChars == 'true'}">
+                                        <label for="requireSpecialChars">Require Special Characters in Password</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="twoFactorAuth" name="security.twoFactorAuth" 
+                                           th:checked="${allSettings.security.twoFactorAuth == 'true'}">
+                                    <label for="twoFactorAuth">Enable Two-Factor Authentication</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Notifications Settings Tab -->
+                        <div id="notifications" class="tab-content">
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="emailEnabled" name="notifications.email.enabled" 
+                                           th:checked="${allSettings.notifications.emailEnabled == 'true'}">
+                                    <label for="emailEnabled">Enable Email Notifications</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="smsEnabled" name="notifications.sms.enabled" 
+                                           th:checked="${allSettings.notifications.smsEnabled == 'true'}">
+                                    <label for="smsEnabled">Enable SMS Notifications</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="appointmentReminder" name="notifications.appointment.reminder" 
+                                           th:checked="${allSettings.notifications.appointmentReminder == 'true'}">
+                                    <label for="appointmentReminder">Send Appointment Reminders</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="systemAlerts" name="notifications.system.alerts" 
+                                           th:checked="${allSettings.notifications.systemAlerts == 'true'}">
+                                    <label for="systemAlerts">Enable System Alerts</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Backup Settings Tab -->
+                        <div id="backup" class="tab-content">
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="autoBackup" name="backup.autoBackup" 
+                                           th:checked="${allSettings.backup.autoBackup == 'true'}">
+                                    <label for="autoBackup">Enable Automatic Backups</label>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="backupFrequency">Backup Frequency</label>
+                                    <select id="backupFrequency" name="backup.frequency">
+                                        <option value="daily" th:selected="${allSettings.backup.frequency == 'daily'}">Daily</option>
+                                        <option value="weekly" th:selected="${allSettings.backup.frequency == 'weekly'}">Weekly</option>
+                                        <option value="monthly" th:selected="${allSettings.backup.frequency == 'monthly'}">Monthly</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="retentionDays">Retention Period (days)</label>
+                                    <input type="number" id="retentionDays" name="backup.retentionDays" 
+                                           th:value="${allSettings.backup.retentionDays}" min="7" max="365">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="backupLocation">Backup Location</label>
+                                <input type="text" id="backupLocation" name="backup.location" 
+                                       th:value="${allSettings.backup.location}">
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Settings
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="form-actions" style="border-top: 1px solid #e9ecef; margin-top: 2rem; padding-top: 2rem;">
+                        <form action="/admin/reset-settings" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to reset all settings to defaults?')">
+                                <i class="fas fa-refresh"></i> Reset to Defaults
+                            </button>
+                        </form>
+                        <form action="/admin/export-settings" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-download"></i> Export Settings
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Information -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <h3>System Information</h3>
+                </div>
+                <div class="section-content">
+                    <div class="system-info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Java Version</span>
+                            <span class="info-value" th:text="${systemInfo.javaVersion}">17.0.1</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">OS Name</span>
+                            <span class="info-value" th:text="${systemInfo.osName}">Windows 11</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Application Version</span>
+                            <span class="info-value" th:text="${systemInfo.version}">1.0.0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Uptime</span>
+                            <span class="info-value" th:text="${systemInfo.uptime}">2 hours</span>
+                        </div>
+                    </div>
+                    
+                    <div class="memory-usage">
+                        <div class="info-label">Memory Usage</div>
+                        <div class="memory-bar">
+                            <div class="memory-fill" th:style="'width: ' + ${systemInfo.memoryUsagePercent} + '%'"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.9rem; color: #7f8c8d;">
+                            <span th:text="'Used: ' + ${systemInfo.usedMemory}">Used: 256 MB</span>
+                            <span th:text="'Total: ' + ${systemInfo.totalMemory}">Total: 512 MB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Logs -->
+        <div class="settings-section" style="margin-top: 2rem;">
+            <div class="section-header">
+                <h3>Recent System Logs</h3>
+            </div>
+            <div class="section-content">
+                <div class="logs-section">
+                    <div th:each="log : ${systemLogs}" class="log-item">
+                        <div class="log-level" th:classappend="${log.level.toLowerCase()}" th:text="${log.level}">INFO</div>
+                        <div class="log-content">
+                            <div class="log-message" th:text="${log.message}">Log message</div>
+                            <div class="log-details" th:text="${log.source}">Source</div>
+                        </div>
+                        <div class="log-time" th:text="${#temporals.format(log.timestamp, 'MMM dd, HH:mm')}">Jan 15, 14:30</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+        
+        function resetForm() {
+            if (confirm('Are you sure you want to reset the form? All unsaved changes will be lost.')) {
+                document.querySelector('form').reset();
+            }
+        }
+        
+        // Show success/error messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+            const error = urlParams.get('error');
+            
+            if (success) {
+                showNotification(success, 'success');
+            }
+            if (error) {
+                showNotification(error, 'error');
+            }
+        });
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 5px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                background-color: ${type === 'success' ? '#27ae60' : '#e74c3c'};
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

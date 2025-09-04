@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Management - Hospital Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(39, 174, 96, 0.2);
+        }
+
+        .alert-error {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .page-header h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .page-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        /* Statistics Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            border-left: 4px solid;
+        }
+
+        .stat-card.total { border-left-color: #3498db; }
+        .stat-card.active { border-left-color: #27ae60; }
+        .stat-card.inactive { border-left-color: #f39c12; }
+        .stat-card.new { border-left-color: #9b59b6; }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        /* Search and Filter Section */
+        .search-filter-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .search-filter-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Patients Section */
+        .patients-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h3 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+
+        .patients-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .patients-table th,
+        .patients-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .patients-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .patients-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 0.75rem;
+        }
+
+        .patient-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .patient-details h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .patient-details p {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active { background: rgba(39, 174, 96, 0.1); color: #27ae60; }
+        .status-inactive { background: rgba(243, 156, 18, 0.1); color: #f39c12; }
+        .status-discharged { background: rgba(149, 165, 166, 0.1); color: #95a5a6; }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .no-patients {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+        }
+
+        .no-patients i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .close {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .patient-form {
+            padding: 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row.full-width {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+            .search-filter-form {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .patients-table {
+                font-size: 0.9rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-users"></i>
+                <h1>Patient Management</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/admin-dashboard" class="nav-link">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+                <a href="/logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}">Success message</span>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}">Error message</span>
+        </div>
+
+        <div class="page-header">
+            <h2>Patient Management</h2>
+            <p>Manage patient registrations, records, and information</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-row">
+            <div class="stat-card total">
+                <div class="stat-number" th:text="${patientStatistics.totalPatients}">0</div>
+                <div class="stat-label">Total Patients</div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-number" th:text="${patientStatistics.activePatients}">0</div>
+                <div class="stat-label">Active Patients</div>
+            </div>
+            <div class="stat-card inactive">
+                <div class="stat-number" th:text="${patientStatistics.inactivePatients}">0</div>
+                <div class="stat-label">Inactive Patients</div>
+            </div>
+            <div class="stat-card new">
+                <div class="stat-number" th:text="${patientStatistics.newPatientsThisMonth}">0</div>
+                <div class="stat-label">New This Month</div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="search-filter-section">
+            <form method="get" action="/admin/patient-management" class="search-filter-form">
+                <div class="form-group">
+                    <label for="search">Search Patients</label>
+                    <input type="text" id="search" name="search" th:value="${searchTerm}"
+                           placeholder="Search by name, email, phone, or patient ID...">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="">All Status</option>
+                        <option value="ACTIVE" th:selected="${selectedStatus == 'ACTIVE'}">Active</option>
+                        <option value="INACTIVE" th:selected="${selectedStatus == 'INACTIVE'}">Inactive</option>
+                        <option value="DISCHARGED" th:selected="${selectedStatus == 'DISCHARGED'}">Discharged</option>
+                        <option value="TRANSFERRED" th:selected="${selectedStatus == 'TRANSFERRED'}">Transferred</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" name="gender">
+                        <option value="">All Genders</option>
+                        <option value="MALE" th:selected="${selectedGender == 'MALE'}">Male</option>
+                        <option value="FEMALE" th:selected="${selectedGender == 'FEMALE'}">Female</option>
+                        <option value="OTHER" th:selected="${selectedGender == 'OTHER'}">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bloodGroup">Blood Group</label>
+                    <select id="bloodGroup" name="bloodGroup">
+                        <option value="">All Blood Groups</option>
+                        <option value="A_POSITIVE" th:selected="${selectedBloodGroup == 'A_POSITIVE'}">A+</option>
+                        <option value="A_NEGATIVE" th:selected="${selectedBloodGroup == 'A_NEGATIVE'}">A-</option>
+                        <option value="B_POSITIVE" th:selected="${selectedBloodGroup == 'B_POSITIVE'}">B+</option>
+                        <option value="B_NEGATIVE" th:selected="${selectedBloodGroup == 'B_NEGATIVE'}">B-</option>
+                        <option value="AB_POSITIVE" th:selected="${selectedBloodGroup == 'AB_POSITIVE'}">AB+</option>
+                        <option value="AB_NEGATIVE" th:selected="${selectedBloodGroup == 'AB_NEGATIVE'}">AB-</option>
+                        <option value="O_POSITIVE" th:selected="${selectedBloodGroup == 'O_POSITIVE'}">O+</option>
+                        <option value="O_NEGATIVE" th:selected="${selectedBloodGroup == 'O_NEGATIVE'}">O-</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="doctorId">Doctor</label>
+                    <select id="doctorId" name="doctorId">
+                        <option value="">All Doctors</option>
+                        <option th:each="doctor : ${allDoctors}" 
+                                th:value="${doctor.id}" 
+                                th:text="${doctor.firstName + ' ' + doctor.lastName}"
+                                th:selected="${selectedDoctorId == doctor.id}">Doctor Name</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
+        </div>
+
+        <!-- Patients Section -->
+        <div class="patients-section">
+            <div class="section-header">
+                <h3>Patient Records</h3>
+                <button class="btn btn-success" onclick="openAddPatientModal()">
+                    <i class="fas fa-plus"></i> Register New Patient
+                </button>
+            </div>
+
+            <div th:if="${allPatients != null and !allPatients.empty}">
+                <table class="patients-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Patient ID</th>
+                            <th>Contact</th>
+                            <th>Age/Gender</th>
+                            <th>Blood Group</th>
+                            <th>Status</th>
+                            <th>Doctor</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="patient : ${allPatients}">
+                            <td>
+                                <div class="patient-info">
+                                    <div class="patient-avatar" th:text="${patient.firstName.substring(0,1) + patient.lastName.substring(0,1)}">JD</div>
+                                    <div class="patient-details">
+                                        <h4 th:text="${patient.fullName}">John Doe</h4>
+                                        <p th:text="${patient.email}">john.doe@email.com</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td th:text="${patient.patientId}">P001</td>
+                            <td th:text="${patient.phone}">+1234567890</td>
+                            <td th:text="${patient.age + ' / ' + patient.gender}">25 / Male</td>
+                            <td th:text="${patient.bloodGroup?.displayName ?: 'N/A'}">A+</td>
+                            <td>
+                                <span class="status-badge" 
+                                      th:classappend="${patient.status.name().toLowerCase() == 'active' ? 'status-active' : 
+                                                       (patient.status.name().toLowerCase() == 'inactive' ? 'status-inactive' : 'status-discharged')}"
+                                      th:text="${patient.status}">Active</span>
+                            </td>
+                            <td th:text="${patient.doctor?.firstName + ' ' + patient.doctor?.lastName ?: 'Not Assigned'}">Dr. Smith</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a th:href="@{/admin/patient-details/{id}(id=${patient.id})}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <form th:if="${patient.status.name() == 'ACTIVE'}" 
+                                          action="/admin/update-patient-status" method="post" style="display: inline;">
+                                        <input type="hidden" name="patientId" th:value="${patient.id}">
+                                        <input type="hidden" name="status" value="INACTIVE">
+                                        <button type="submit" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-pause"></i> Deactivate
+                                        </button>
+                                    </form>
+                                    <form th:if="${patient.status.name() == 'INACTIVE'}" 
+                                          action="/admin/update-patient-status" method="post" style="display: inline;">
+                                        <input type="hidden" name="patientId" th:value="${patient.id}">
+                                        <input type="hidden" name="status" value="ACTIVE">
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="fas fa-play"></i> Activate
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${allPatients == null or allPatients.empty}" class="no-patients">
+                <i class="fas fa-users"></i>
+                <h3>No Patients Found</h3>
+                <p>No patients match your search criteria. Try adjusting your filters or register a new patient.</p>
+            </div>
+        </div>
+    </div>
+    <!-
+- Add Patient Modal -->
+    <div id="addPatientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Register New Patient</h3>
+                <span class="close" onclick="closeAddPatientModal()">&times;</span>
+            </div>
+            <form action="/admin/create-patient" method="post" class="patient-form">
+                <!-- Basic Information -->
+                <h4 style="color: #2c3e50; margin-bottom: 1rem; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;">
+                    <i class="fas fa-user"></i> Basic Information
+                </h4>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name *</label>
+                        <input type="text" id="firstName" name="firstName" required 
+                               placeholder="Enter first name">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name *</label>
+                        <input type="text" id="lastName" name="lastName" required 
+                               placeholder="Enter last name">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required 
+                               placeholder="Enter email address">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" required 
+                               placeholder="Enter phone number">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dateOfBirth">Date of Birth *</label>
+                        <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender *</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="MALE">Male</option>
+                            <option value="FEMALE">Female</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Address Information -->
+                <h4 style="color: #2c3e50; margin: 2rem 0 1rem 0; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;">
+                    <i class="fas fa-map-marker-alt"></i> Address Information
+                </h4>
+                
+                <div class="form-row full-width">
+                    <div class="form-group">
+                        <label for="address">Street Address *</label>
+                        <input type="text" id="address" name="address" required 
+                               placeholder="Enter street address">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" id="city" name="city" 
+                               placeholder="Enter city">
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <input type="text" id="state" name="state" 
+                               placeholder="Enter state">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="zipCode">ZIP Code</label>
+                        <input type="text" id="zipCode" name="zipCode" 
+                               placeholder="Enter ZIP code">
+                    </div>
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <input type="text" id="country" name="country" 
+                               placeholder="Enter country">
+                    </div>
+                </div>
+                
+                <!-- Medical Information -->
+                <h4 style="color: #2c3e50; margin: 2rem 0 1rem 0; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;">
+                    <i class="fas fa-heartbeat"></i> Medical Information
+                </h4>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bloodGroup">Blood Group</label>
+                        <select id="bloodGroup" name="bloodGroup">
+                            <option value="">Select Blood Group</option>
+                            <option value="A_POSITIVE">A+</option>
+                            <option value="A_NEGATIVE">A-</option>
+                            <option value="B_POSITIVE">B+</option>
+                            <option value="B_NEGATIVE">B-</option>
+                            <option value="AB_POSITIVE">AB+</option>
+                            <option value="AB_NEGATIVE">AB-</option>
+                            <option value="O_POSITIVE">O+</option>
+                            <option value="O_NEGATIVE">O-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="maritalStatus">Marital Status</label>
+                        <select id="maritalStatus" name="maritalStatus">
+                            <option value="">Select Status</option>
+                            <option value="SINGLE">Single</option>
+                            <option value="MARRIED">Married</option>
+                            <option value="DIVORCED">Divorced</option>
+                            <option value="WIDOWED">Widowed</option>
+                            <option value="SEPARATED">Separated</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nationality">Nationality</label>
+                        <input type="text" id="nationality" name="nationality" 
+                               placeholder="Enter nationality">
+                    </div>
+                    <div class="form-group">
+                        <label for="occupation">Occupation</label>
+                        <input type="text" id="occupation" name="occupation" 
+                               placeholder="Enter occupation">
+                    </div>
+                </div>
+                
+                <div class="form-row full-width">
+                    <div class="form-group">
+                        <label for="medicalHistory">Medical History</label>
+                        <textarea id="medicalHistory" name="medicalHistory" rows="3" 
+                                  placeholder="Enter medical history (optional)"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="allergies">Allergies</label>
+                        <textarea id="allergies" name="allergies" rows="2" 
+                                  placeholder="List any allergies (optional)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="currentMedications">Current Medications</label>
+                        <textarea id="currentMedications" name="currentMedications" rows="2" 
+                                  placeholder="List current medications (optional)"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Emergency Contact -->
+                <h4 style="color: #2c3e50; margin: 2rem 0 1rem 0; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;">
+                    <i class="fas fa-phone"></i> Emergency Contact
+                </h4>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="emergencyContact">Emergency Contact Name</label>
+                        <input type="text" id="emergencyContact" name="emergencyContact" 
+                               placeholder="Enter emergency contact name">
+                    </div>
+                    <div class="form-group">
+                        <label for="emergencyPhone">Emergency Contact Phone</label>
+                        <input type="tel" id="emergencyPhone" name="emergencyPhone" 
+                               placeholder="Enter emergency contact phone">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="emergencyRelation">Relationship</label>
+                        <input type="text" id="emergencyRelation" name="emergencyRelation" 
+                               placeholder="e.g., Spouse, Parent, Sibling">
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorId">Assign Doctor</label>
+                        <select id="doctorId" name="doctorId">
+                            <option value="">Select Doctor (Optional)</option>
+                            <option th:each="doctor : ${allDoctors}" 
+                                    th:value="${doctor.id}" 
+                                    th:text="${doctor.firstName + ' ' + doctor.lastName}">Doctor Name</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Insurance Information -->
+                <h4 style="color: #2c3e50; margin: 2rem 0 1rem 0; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;">
+                    <i class="fas fa-shield-alt"></i> Insurance Information (Optional)
+                </h4>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="insuranceProvider">Insurance Provider</label>
+                        <input type="text" id="insuranceProvider" name="insuranceProvider" 
+                               placeholder="Enter insurance provider">
+                    </div>
+                    <div class="form-group">
+                        <label for="insurancePolicyNumber">Policy Number</label>
+                        <input type="text" id="insurancePolicyNumber" name="insurancePolicyNumber" 
+                               placeholder="Enter policy number">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="insuranceGroupNumber">Group Number</label>
+                        <input type="text" id="insuranceGroupNumber" name="insuranceGroupNumber" 
+                               placeholder="Enter group number">
+                    </div>
+                    <div class="form-group">
+                        <!-- Empty for spacing -->
+                    </div>
+                </div>
+                
+                <!-- Additional Notes -->
+                <div class="form-row full-width">
+                    <div class="form-group">
+                        <label for="notes">Additional Notes</label>
+                        <textarea id="notes" name="notes" rows="3" 
+                                  placeholder="Enter any additional notes or comments"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddPatientModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Register Patient</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openAddPatientModal() {
+            document.getElementById('addPatientModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddPatientModal() {
+            document.getElementById('addPatientModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.querySelector('.patient-form').reset();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addPatientModal');
+            if (event.target === modal) {
+                closeAddPatientModal();
+            }
+        }
+
+        // Form validation
+        document.querySelector('.patient-form').addEventListener('submit', function(e) {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const dateOfBirth = document.getElementById('dateOfBirth').value;
+            const gender = document.getElementById('gender').value;
+            const address = document.getElementById('address').value.trim();
+            
+            if (!firstName || !lastName || !email || !phone || !dateOfBirth || !gender || !address) {
+                e.preventDefault();
+                alert('Please fill in all required fields marked with *');
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            // Validate age (must be reasonable)
+            const birthDate = new Date(dateOfBirth);
+            const today = new Date();
+            const age = today.getFullYear() - birthDate.getFullYear();
+            
+            if (age < 0 || age > 150) {
+                e.preventDefault();
+                alert('Please enter a valid date of birth');
+                return;
+            }
+        });
+    </script>
+</body>
+
+</html>

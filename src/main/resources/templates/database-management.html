@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Management - Hospital Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo i {
+            font-size: 1.5rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        
+        .page-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            border-left: 4px solid;
+        }
+        
+        .stat-card.database {
+            border-left-color: #3498db;
+        }
+        
+        .stat-card.tables {
+            border-left-color: #27ae60;
+        }
+        
+        .stat-card.records {
+            border-left-color: #f39c12;
+        }
+        
+        .stat-card.size {
+            border-left-color: #e74c3c;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+        
+        .management-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .management-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .section-header h3 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .table-stats {
+            margin-top: 1.5rem;
+        }
+        
+        .table-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .table-item:last-child {
+            border-bottom: none;
+        }
+        
+        .table-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .table-count {
+            background: #f8f9fa;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .health-section {
+            margin-bottom: 2rem;
+        }
+        
+        .health-indicator {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .health-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .health-icon.excellent {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+        }
+        
+        .health-icon.good {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+        
+        .health-icon.warning {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+        }
+        
+        .health-icon.critical {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+        
+        .health-info h4 {
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+        
+        .health-info p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .activity-section {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-action {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-details {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: #95a5a6;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-fill.excellent {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+        }
+        
+        .progress-fill.good {
+            background: linear-gradient(90deg, #3498db, #5dade2);
+        }
+        
+        .progress-fill.warning {
+            background: linear-gradient(90deg, #f39c12, #f8c471);
+        }
+        
+        @media (max-width: 768px) {
+            .management-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 0 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-database"></i>
+                <h1>Database Management</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/admin-dashboard" class="nav-link">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+                <a href="/logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h2>Database Management</h2>
+            <p>Monitor database health, perform maintenance operations, and manage data integrity</p>
+        </div>
+        
+        <!-- Database Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card database">
+                <div class="stat-number" th:text="${databaseStats.connectionStatus}">Connected</div>
+                <div class="stat-label">Connection Status</div>
+            </div>
+            <div class="stat-card tables">
+                <div class="stat-number" th:text="${databaseStats.totalTables}">0</div>
+                <div class="stat-label">Total Tables</div>
+            </div>
+            <div class="stat-card records">
+                <div class="stat-number" th:text="${databaseStats.totalRecords}">0</div>
+                <div class="stat-label">Total Records</div>
+            </div>
+            <div class="stat-card size">
+                <div class="stat-number" th:text="${databaseStats.databaseSize}">0 MB</div>
+                <div class="stat-label">Database Size</div>
+            </div>
+        </div>
+        
+        <!-- Management Sections -->
+        <div class="management-grid">
+            <!-- Database Operations -->
+            <div class="management-section">
+                <div class="section-header">
+                    <h3>Database Operations</h3>
+                </div>
+                
+                <div class="action-buttons">
+                    <form action="/admin/database-backup" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Create Backup
+                        </button>
+                    </form>
+                    <form action="/admin/database-optimize" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-rocket"></i> Optimize Database
+                        </button>
+                    </form>
+                    <form action="/admin/database-cleanup" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-broom"></i> Cleanup Database
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Table Statistics -->
+                <div class="table-stats">
+                    <h4 style="color: #2c3e50; margin-bottom: 1rem;">Table Record Counts</h4>
+                    <div th:each="table : ${databaseStats.tableCounts}" class="table-item">
+                        <span class="table-name" th:text="${table.key}">TABLE_NAME</span>
+                        <span class="table-count" th:text="${table.value}">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Database Health -->
+            <div class="management-section">
+                <div class="section-header">
+                    <h3>Database Health</h3>
+                </div>
+                
+                <div class="health-section">
+                    <div class="health-indicator">
+                        <div class="health-icon excellent">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="health-info">
+                            <h4 th:text="${databaseHealth.overallHealth}">Excellent</h4>
+                            <p>Overall database health status</p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill excellent" th:style="'width: ' + ${databaseHealth.healthScore} + '%'"></div>
+                    </div>
+                    
+                    <div class="health-indicator">
+                        <div class="health-icon good">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div class="health-info">
+                            <h4 th:text="${databaseHealth.connectionHealth}">Healthy</h4>
+                            <p>Connection status</p>
+                        </div>
+                    </div>
+                    
+                    <div class="health-indicator">
+                        <div class="health-icon good">
+                            <i class="fas fa-table"></i>
+                        </div>
+                        <div class="health-info">
+                            <h4 th:text="${databaseHealth.tableIntegrity}">Good</h4>
+                            <p>Table integrity check</p>
+                        </div>
+                    </div>
+                    
+                    <div class="health-indicator">
+                        <div class="health-icon excellent">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="health-info">
+                            <h4 th:text="${databaseHealth.responseTime}">< 10ms</h4>
+                            <p>Average response time</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="management-section">
+            <div class="section-header">
+                <h3>Recent Database Activity</h3>
+            </div>
+            
+            <div class="activity-section">
+                <div th:each="activity : ${recentActivity}" class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-action" th:text="${activity.action}">Database Action</div>
+                        <div class="activity-details">
+                            <span th:text="${activity.table}">TABLE</span> - 
+                            <span th:text="${activity.type}">TYPE</span>
+                        </div>
+                    </div>
+                    <div class="activity-time" th:text="${#temporals.format(activity.timestamp, 'MMM dd, HH:mm')}">Jan 15, 14:30</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show success/error messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+            const error = urlParams.get('error');
+            
+            if (success) {
+                showNotification(success, 'success');
+            }
+            if (error) {
+                showNotification(error, 'error');
+            }
+        });
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 5px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                background-color: ${type === 'success' ? '#27ae60' : '#e74c3c'};
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

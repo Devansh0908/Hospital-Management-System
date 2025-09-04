@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Reports - Hospital Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .page-header h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .page-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .report-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .report-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .report-icon.overview {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .report-icon.departments {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+        }
+
+        .report-icon.rooms {
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+        }
+
+        .report-icon.users {
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+        }
+
+        .report-title {
+            color: #2c3e50;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .report-content {
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.success {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+        }
+
+        .progress-fill.danger {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .department-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .department-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .department-item:last-child {
+            border-bottom: none;
+        }
+
+        .department-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .department-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn-export {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-pdf {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-excel {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-print {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-1px);
+        }
+
+        .summary-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-title {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border-left: 4px solid;
+        }
+
+        .summary-card.primary {
+            border-left-color: #3498db;
+        }
+
+        .summary-card.success {
+            border-left-color: #27ae60;
+        }
+
+        .summary-card.warning {
+            border-left-color: #f39c12;
+        }
+
+        .summary-card.danger {
+            border-left-color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 0 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <h1>System Reports</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/admin-dashboard" class="nav-link">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+                <a href="/logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h2>System Reports & Analytics</h2>
+            <p>Comprehensive reports and analytics for hospital management and operations</p>
+        </div>
+
+        <!-- System Summary -->
+        <div class="summary-section">
+            <div class="summary-title">
+                <i class="fas fa-tachometer-alt"></i>
+                System Overview
+            </div>
+            <div class="summary-grid">
+                <div class="summary-card primary">
+                    <div class="stat-number" th:text="${systemOverview.totalUsers}">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="summary-card success">
+                    <div class="stat-number" th:text="${systemOverview.totalDepartments}">0</div>
+                    <div class="stat-label">Departments</div>
+                </div>
+                <div class="summary-card warning">
+                    <div class="stat-number" th:text="${systemOverview.totalRooms}">0</div>
+                    <div class="stat-label">Total Rooms</div>
+                </div>
+                <div class="summary-card danger">
+                    <div class="stat-number" th:text="${systemOverview.totalPatients}">0</div>
+                    <div class="stat-label">Patients</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Reports -->
+        <div class="reports-grid">
+            <!-- User Activity Report -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-icon users">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="report-title">User Activity Report</div>
+                </div>
+                <div class="report-content">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${userActivity.totalUsers}">0</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${userActivity.recentRegistrations}">0</div>
+                            <div class="stat-label">New (30 days)</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-label">
+                        <span>Active Users</span>
+                        <span th:text="${userActivity.userStatusDistribution.ACTIVE}">0</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill success"
+                            th:style="'width: ' + ${userActivity.totalUsers > 0 ? (userActivity.userStatusDistribution.ACTIVE * 100 / userActivity.totalUsers) : 0} + '%'">
+                        </div>
+                    </div>
+
+                    <div class="progress-label">
+                        <span>Doctors</span>
+                        <span th:text="${userActivity.roleDistribution.DOCTOR}">0</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill warning"
+                            th:style="'width: ' + ${userActivity.totalUsers > 0 ? (userActivity.roleDistribution.DOCTOR * 100 / userActivity.totalUsers) : 0} + '%'">
+                        </div>
+                    </div>
+
+                    <div class="export-buttons">
+                        <button class="btn-export btn-pdf"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn-export btn-excel"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn-export btn-print"><i class="fas fa-print"></i> Print</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Utilization Report -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-icon rooms">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                    <div class="report-title">Room Utilization</div>
+                </div>
+                <div class="report-content">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${roomUtilization.totalRooms}">0</div>
+                            <div class="stat-label">Total Rooms</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${roomUtilization.occupancyRate} + '%'">0%</div>
+                            <div class="stat-label">Occupancy Rate</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-label">
+                        <span>Available Rooms</span>
+                        <span th:text="${roomUtilization.availableRooms}">0</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill success"
+                            th:style="'width: ' + ${roomUtilization.totalRooms > 0 ? (roomUtilization.availableRooms * 100 / roomUtilization.totalRooms) : 0} + '%'">
+                        </div>
+                    </div>
+
+                    <div class="progress-label">
+                        <span>Occupied Rooms</span>
+                        <span th:text="${roomUtilization.occupiedRooms}">0</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill danger"
+                            th:style="'width: ' + ${roomUtilization.totalRooms > 0 ? (roomUtilization.occupiedRooms * 100 / roomUtilization.totalRooms) : 0} + '%'">
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="roomChart"></canvas>
+                    </div>
+
+                    <div class="export-buttons">
+                        <button class="btn-export btn-pdf"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn-export btn-excel"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn-export btn-print"><i class="fas fa-print"></i> Print</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Department Report -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-icon departments">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <div class="report-title">Department Overview</div>
+                </div>
+                <div class="report-content">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${departmentReport.totalDepartments}">0</div>
+                            <div class="stat-label">Departments</div>
+                        </div>
+                    </div>
+
+                    <div class="department-list">
+                        <div th:each="dept : ${departmentReport.departments}" class="department-item">
+                            <div class="department-name" th:text="${dept.value.name}">Department Name</div>
+                            <div class="department-stats">
+                                <span th:text="${dept.value.doctorCount} + ' doctors'">0 doctors</span>
+                                <span th:text="${dept.value.roomCount} + ' rooms'">0 rooms</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="export-buttons">
+                        <button class="btn-export btn-pdf"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn-export btn-excel"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn-export btn-print"><i class="fas fa-print"></i> Print</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointment Report -->
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="report-icon overview">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="report-title">Appointment Analytics</div>
+                </div>
+                <div class="report-content">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${appointmentReport.todayAppointments}">0</div>
+                            <div class="stat-label">Today</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${appointmentReport.weeklyAppointments}">0</div>
+                            <div class="stat-label">This Week</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${appointmentReport.monthlyAppointments}">0</div>
+                            <div class="stat-label">This Month</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="appointmentChart"></canvas>
+                    </div>
+
+                    <div class="export-buttons">
+                        <button class="btn-export btn-pdf"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn-export btn-excel"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn-export btn-print"><i class="fas fa-print"></i> Print</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Room Utilization Chart
+        const roomCtx = document.getElementById('roomChart').getContext('2d');
+        new Chart(roomCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Available', 'Occupied', 'Maintenance', 'Cleaning'],
+                datasets: [{
+                    data: [
+                        [[${ roomUtilization.statusDistribution.AVAILABLE }]],
+                        [[${ roomUtilization.statusDistribution.OCCUPIED }]],
+                        [[${ roomUtilization.statusDistribution.MAINTENANCE }]],
+                        [[${ roomUtilization.statusDistribution.CLEANING }]]
+                    ],
+                    backgroundColor: [
+                        '#27ae60',
+                        '#e74c3c',
+                        '#f39c12',
+                        '#3498db'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Appointment Chart
+        const appointmentCtx = document.getElementById('appointmentChart').getContext('2d');
+        new Chart(appointmentCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Appointments',
+                    data: [12, 19, 15, 25, 22, 18, 8],
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Export functionality
+        document.querySelectorAll('.btn-export').forEach(btn => {
+            btn.addEventListener('click', function () {
+                if (this.classList.contains('btn-pdf')) {
+                    window.open('/export/system-report/pdf', '_blank');
+                } else if (this.classList.contains('btn-excel')) {
+                    alert('Excel export for system reports will be available soon!');
+                } else if (this.classList.contains('btn-print')) {
+                    window.print();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

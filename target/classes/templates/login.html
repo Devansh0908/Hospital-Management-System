@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management - Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        .hospital-icon {
+            font-size: 3rem;
+            color: #4a90e2;
+            margin-bottom: 1rem;
+        }
+        
+        .login-header h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        input[type="email"], input[type="password"], input[type="text"], select {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+        
+        select {
+            padding: 15px;
+        }
+        
+        input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #4a90e2;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+        
+        .role-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .role-option {
+            flex: 1;
+            position: relative;
+        }
+        
+        .role-option input[type="radio"] {
+            display: none;
+        }
+        
+        .role-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            font-weight: 500;
+        }
+        
+        .role-option input[type="radio"]:checked + label {
+            border-color: #4a90e2;
+            background-color: rgba(74, 144, 226, 0.1);
+            color: #4a90e2;
+        }
+        
+        .admin-key-field {
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .admin-key-field.show {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 144, 226, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e9ecef;
+        }
+        
+        .divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 1rem;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .signup-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        
+        .signup-link p {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+        
+        .signup-link a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .signup-link a:hover {
+            color: #357abd;
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2rem;
+                margin: 10px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="hospital-icon">
+                <i class="fas fa-hospital"></i>
+            </div>
+            <h1>Hospital Management</h1>
+            <p>Welcome back! Please sign in to continue</p>
+        </div>
+        
+        <div th:if="${success}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}"></span>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+        
+        <form action="/login" method="post">
+            <div class="role-selector">
+                <div class="role-option">
+                    <input type="radio" id="doctor" name="role" value="doctor" checked>
+                    <label for="doctor">
+                        <i class="fas fa-user-md"></i>
+                        <span>Doctor</span>
+                    </label>
+                </div>
+                <div class="role-option">
+                    <input type="radio" id="admin" name="role" value="admin">
+                    <label for="admin">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="username" name="username" placeholder="Enter your email" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+            </div>
+            
+            <div class="form-group admin-key-field" id="adminKeyField">
+                <label for="adminKey">Admin Access Key</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-key"></i>
+                    <input type="text" id="adminKey" name="adminKey" placeholder="Enter admin access key">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
+        
+        <div class="divider">
+            <span>New to our platform?</span>
+        </div>
+        
+        <div class="signup-link">
+            <p>Don't have an account? <a href="/signup">Create one here</a></p>
+        </div>
+        
+        <div th:if="${debugInfo}" style="margin-top: 1rem; padding: 0.5rem; background: rgba(74, 144, 226, 0.1); border-radius: 5px; font-size: 0.8rem; color: #4a90e2; text-align: center;">
+            <span th:text="${debugInfo}"></span>
+        </div>
+    </div>
+
+    <script>
+        // Show/hide admin key field based on role selection
+        const roleRadios = document.querySelectorAll('input[name="role"]');
+        const adminKeyField = document.getElementById('adminKeyField');
+        const adminKeyInput = document.getElementById('adminKey');
+        
+        roleRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'admin') {
+                    adminKeyField.classList.add('show');
+                    adminKeyInput.required = true;
+                } else {
+                    adminKeyField.classList.remove('show');
+                    adminKeyInput.required = false;
+                    adminKeyInput.value = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

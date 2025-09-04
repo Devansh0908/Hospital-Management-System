@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management - Sign Up</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .signup-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .signup-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        .hospital-icon {
+            font-size: 3rem;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+        
+        .signup-header h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .signup-header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+            flex: 1;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        input[type="text"], input[type="email"], input[type="password"], select {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+        
+        select {
+            padding: 15px;
+        }
+        
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus {
+            outline: none;
+            border-color: #27ae60;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+        
+        .role-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .role-option {
+            flex: 1;
+            position: relative;
+        }
+        
+        .role-option input[type="radio"] {
+            display: none;
+        }
+        
+        .role-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            font-weight: 500;
+        }
+        
+        .role-option input[type="radio"]:checked + label {
+            border-color: #27ae60;
+            background-color: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+        }
+        
+        .admin-key-field {
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .admin-key-field.show {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .strength-bar {
+            height: 4px;
+            background-color: #e9ecef;
+            border-radius: 2px;
+            margin-top: 0.25rem;
+            overflow: hidden;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(39, 174, 96, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e9ecef;
+        }
+        
+        .divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 1rem;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        
+        .login-link p {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+        
+        .login-link a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .login-link a:hover {
+            color: #357abd;
+            text-decoration: underline;
+        }
+        
+        .terms {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 1rem;
+            line-height: 1.4;
+        }
+        
+        .terms a {
+            color: #4a90e2;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 600px) {
+            .signup-container {
+                padding: 2rem;
+                margin: 10px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .signup-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="signup-header">
+            <div class="hospital-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h1>Create Account</h1>
+            <p>Join our hospital management platform</p>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+        
+        <form action="/signup" method="post">
+            <div class="role-selector">
+                <div class="role-option">
+                    <input type="radio" id="doctor" name="role" value="doctor" checked>
+                    <label for="doctor">
+                        <i class="fas fa-user-md"></i>
+                        <span>Doctor</span>
+                    </label>
+                </div>
+                <div class="role-option">
+                    <input type="radio" id="admin" name="role" value="admin">
+                    <label for="admin">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="firstName" name="firstName" placeholder="Enter first name" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="lastName" name="lastName" placeholder="Enter last name" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="Create a password" required>
+                </div>
+                <div class="password-strength">
+                    <div class="strength-bar">
+                        <div class="strength-fill"></div>
+                    </div>
+                    <span class="strength-text">Password strength</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                </div>
+            </div>
+            
+            <div class="form-group admin-key-field" id="adminKeyField">
+                <label for="adminKey">Admin Access Key</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-key"></i>
+                    <input type="text" id="adminKey" name="adminKey" placeholder="Enter admin access key">
+                </div>
+                <small style="color: #7f8c8d; font-size: 0.8rem; margin-top: 0.5rem; display: block;">
+                    Required for admin registration. Contact system administrator for the key.
+                </small>
+            </div>
+            
+            <button type="submit" class="btn">
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
+            
+            <div class="terms">
+                By creating an account, you agree to our 
+                <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+            </div>
+        </form>
+        
+        <div class="divider">
+            <span>Already have an account?</span>
+        </div>
+        
+        <div class="login-link">
+            <p><a href="/login">Sign in here</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Show/hide admin key field based on role selection
+        const roleRadios = document.querySelectorAll('input[name="role"]');
+        const adminKeyField = document.getElementById('adminKeyField');
+        const adminKeyInput = document.getElementById('adminKey');
+        
+        roleRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'admin') {
+                    adminKeyField.classList.add('show');
+                    adminKeyInput.required = true;
+                } else {
+                    adminKeyField.classList.remove('show');
+                    adminKeyInput.required = false;
+                    adminKeyInput.value = '';
+                }
+            });
+        });
+        
+        // Password strength indicator
+        const passwordInput = document.getElementById('password');
+        const strengthFill = document.querySelector('.strength-fill');
+        const strengthText = document.querySelector('.strength-text');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            let strengthLabel = '';
+            
+            if (password.length >= 8) strength += 25;
+            if (/[a-z]/.test(password)) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 25;
+            
+            if (strength === 0) {
+                strengthLabel = 'Password strength';
+                strengthFill.style.backgroundColor = '#e9ecef';
+            } else if (strength <= 25) {
+                strengthLabel = 'Weak';
+                strengthFill.style.backgroundColor = '#e74c3c';
+            } else if (strength <= 50) {
+                strengthLabel = 'Fair';
+                strengthFill.style.backgroundColor = '#f39c12';
+            } else if (strength <= 75) {
+                strengthLabel = 'Good';
+                strengthFill.style.backgroundColor = '#f1c40f';
+            } else {
+                strengthLabel = 'Strong';
+                strengthFill.style.backgroundColor = '#27ae60';
+            }
+            
+            strengthFill.style.width = strength + '%';
+            strengthText.textContent = strengthLabel;
+        });
+    </script>
+</body>
+</html>

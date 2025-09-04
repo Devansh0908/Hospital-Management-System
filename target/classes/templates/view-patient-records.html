@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Medical Records - Hospital Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo i {
+            font-size: 1.5rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        
+        .page-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .filter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #27ae60;
+        }
+        
+        .filter-btn {
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.3s ease;
+        }
+        
+        .filter-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .records-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .records-header {
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .records-header h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .records-count {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .export-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .export-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .pdf-btn {
+            background-color: rgba(231, 76, 60, 0.9);
+            color: white;
+        }
+        
+        .excel-btn {
+            background-color: rgba(39, 174, 96, 0.9);
+            color: white;
+        }
+        
+        .csv-btn {
+            background-color: rgba(52, 152, 219, 0.9);
+            color: white;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-1px);
+            opacity: 1;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .records-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .record-item {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.3s ease;
+        }
+        
+        .record-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .record-item:last-child {
+            border-bottom: none;
+        }
+        
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .record-patient {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+        
+        .record-date {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .record-type {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .record-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .record-field {
+            margin-bottom: 0.75rem;
+        }
+        
+        .record-field-label {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .record-field-value {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        
+        .record-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-view {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-edit {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background-color: #e67e22;
+        }
+        
+        .no-records {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+        }
+        
+        .no-records i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s ease;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover {
+            opacity: 0.7;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        .record-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+        
+        .info-section h4 {
+            color: #27ae60;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 0.5rem;
+        }
+        
+        .info-field {
+            margin-bottom: 1rem;
+        }
+        
+        .info-field-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .info-field-value {
+            color: #555;
+            line-height: 1.4;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #27ae60;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .filter-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .record-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 0 1rem;
+            }
+            
+            .record-info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-file-medical-alt"></i>
+                <h1>Patient Medical Records</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/doctor-dashboard" class="nav-link">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+                <a href="/logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h2>Medical Records</h2>
+            <p>View and manage patient medical records and consultation history</p>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="patientFilter">Filter by Patient</label>
+                    <select id="patientFilter">
+                        <option value="">All Patients</option>
+                        <option th:each="patient : ${doctorPatients}" 
+                                th:value="${patient.id}" 
+                                th:text="${patient.firstName + ' ' + patient.lastName}">
+                        </option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="recordTypeFilter">Record Type</label>
+                    <select id="recordTypeFilter">
+                        <option value="">All Types</option>
+                        <option value="CONSULTATION">Consultation</option>
+                        <option value="FOLLOW_UP">Follow-up</option>
+                        <option value="EMERGENCY">Emergency</option>
+                        <option value="ROUTINE_CHECKUP">Routine Checkup</option>
+                        <option value="SPECIALIST_VISIT">Specialist Visit</option>
+                        <option value="SURGERY">Surgery</option>
+                        <option value="LAB_RESULTS">Lab Results</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dateFilter">Date Range</label>
+                    <input type="date" id="dateFilter">
+                </div>
+                <button class="filter-btn" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </div>
+        </div>
+        
+        <div class="records-container">
+            <div class="records-header">
+                <div class="header-left">
+                    <h3>Medical Records</h3>
+                    <div class="records-count" th:text="'Total Records: ' + ${allMedicalRecords.size()}">Total Records: 0</div>
+                </div>
+                <div class="export-actions">
+                    <button onclick="exportMedicalRecords('pdf')" class="export-btn pdf-btn">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                    <button onclick="exportMedicalRecords('excel')" class="export-btn excel-btn">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                    <button onclick="exportMedicalRecords('csv')" class="export-btn csv-btn">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                </div>
+            </div>
+            
+            <div class="records-list" id="recordsList">
+                <div th:if="${allMedicalRecords != null and !allMedicalRecords.empty}">
+                    <div th:each="record : ${allMedicalRecords}" class="record-item" 
+                         th:attr="data-patient-id=${record.patient.id}, data-record-type=${record.recordType}">
+                        <div class="record-header">
+                            <div>
+                                <div class="record-patient" th:text="${record.patient.firstName + ' ' + record.patient.lastName}">John Doe</div>
+                                <div class="record-date" th:text="${#temporals.format(record.recordDate, 'MMM dd, yyyy - HH:mm')}">Jan 15, 2024 - 10:30</div>
+                            </div>
+                            <div class="record-type" th:text="${record.recordType}">CONSULTATION</div>
+                        </div>
+                        
+                        <div class="record-details">
+                            <div>
+                                <div class="record-field" th:if="${record.chiefComplaint}">
+                                    <div class="record-field-label">Chief Complaint</div>
+                                    <div class="record-field-value" th:text="${record.chiefComplaint}">Patient complaint</div>
+                                </div>
+                                <div class="record-field" th:if="${record.diagnosis}">
+                                    <div class="record-field-label">Diagnosis</div>
+                                    <div class="record-field-value" th:text="${record.diagnosis}">Medical diagnosis</div>
+                                </div>
+                                <div class="record-field" th:if="${record.vitalSigns}">
+                                    <div class="record-field-label">Vital Signs</div>
+                                    <div class="record-field-value" th:text="${record.vitalSigns}">BP: 120/80, HR: 72</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="record-field" th:if="${record.treatmentPlan}">
+                                    <div class="record-field-label">Treatment Plan</div>
+                                    <div class="record-field-value" th:text="${record.treatmentPlan}">Treatment details</div>
+                                </div>
+                                <div class="record-field" th:if="${record.medications}">
+                                    <div class="record-field-label">Medications</div>
+                                    <div class="record-field-value" th:text="${record.medications}">Current medications</div>
+                                </div>
+                                <div class="record-field" th:if="${record.notes}">
+                                    <div class="record-field-label">Notes</div>
+                                    <div class="record-field-value" th:text="${record.notes}">Additional notes</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="record-actions">
+                            <button class="action-btn btn-view" th:onclick="'viewFullRecord(' + ${record.id} + ')'">
+                                <i class="fas fa-eye"></i> View Full Record
+                            </button>
+                            <button class="action-btn btn-edit" th:onclick="'editRecord(' + ${record.id} + ')'">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div th:if="${allMedicalRecords == null or allMedicalRecords.empty}" class="no-records">
+                    <i class="fas fa-file-medical"></i>
+                    <h3>No Medical Records Found</h3>
+                    <p>No medical records have been created yet. Start by adding a new medical record from the dashboard.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Full Record Modal -->
+    <div id="viewRecordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Medical Record Details</h3>
+                <span class="close" onclick="closeViewRecordModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="record-info-grid">
+                    <div class="info-section">
+                        <h4>Patient Information</h4>
+                        <div class="info-field">
+                            <div class="info-field-label">Patient Name</div>
+                            <div class="info-field-value" id="viewPatientName">-</div>
+                        </div>
+                        <div class="info-field">
+                            <div class="info-field-label">Record Date</div>
+                            <div class="info-field-value" id="viewRecordDate">-</div>
+                        </div>
+                        <div class="info-field">
+                            <div class="info-field-label">Record Type</div>
+                            <div class="info-field-value" id="viewRecordType">-</div>
+                        </div>
+                        <div class="info-field">
+                            <div class="info-field-label">Doctor</div>
+                            <div class="info-field-value" id="viewDoctorName">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4>Vital Signs</h4>
+                        <div class="info-field">
+                            <div class="info-field-label">Vital Signs</div>
+                            <div class="info-field-value" id="viewVitalSigns">-</div>
+                        </div>
+                        <div class="info-field">
+                            <div class="info-field-label">Allergies</div>
+                            <div class="info-field-value" id="viewAllergies">-</div>
+                        </div>
+                        <div class="info-field">
+                            <div class="info-field-label">Current Medications</div>
+                            <div class="info-field-value" id="viewMedications">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section full-width">
+                        <h4>Medical Details</h4>
+                        <div class="info-field">
+                            <div class="info-field-label">Chief Complaint</div>
+                            <div class="info-field-value" id="viewChiefComplaint">-</div>
+                        </div>
+                        <div class="info-field">
+                            <div class="info-field-label">History of Present Illness</div>
+                            <div class="info-field-value" id="viewHistoryOfPresentIllness">-</div>
+                        </div>
+                        <div class="info-field">
+                            <div class="info-field-label">Physical Examination</div>
+                            <div class="info-field-value" id="viewPhysicalExamination">-</div>
+                        </div>
+                        <div class="info-field">
+                            <div class="info-field-label">Diagnosis</div>
+                            <div class="info-field-value" id="viewDiagnosis">-</div>
+                        </div>
+                        <div class="info-field">
+                            <div class="info-field-label">Treatment Plan</div>
+                            <div class="info-field-value" id="viewTreatmentPlan">-</div>
+                        </div>
+                        <div class="info-field">
+                            <div class="info-field-label">Additional Notes</div>
+                            <div class="info-field-value" id="viewNotes">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Record Modal -->
+    <div id="editRecordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Medical Record</h3>
+                <span class="close" onclick="closeEditRecordModal()">&times;</span>
+            </div>
+            <form id="editRecordForm" action="/doctor/update-medical-record" method="post" class="modal-body">
+                <input type="hidden" id="editRecordId" name="recordId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editPatientName">Patient</label>
+                        <input type="text" id="editPatientName" readonly style="background-color: #f8f9fa;">
+                    </div>
+                    <div class="form-group">
+                        <label for="editRecordType">Record Type *</label>
+                        <select id="editRecordType" name="recordType" required>
+                            <option value="CONSULTATION">Consultation</option>
+                            <option value="FOLLOW_UP">Follow-up</option>
+                            <option value="EMERGENCY">Emergency</option>
+                            <option value="ROUTINE_CHECKUP">Routine Checkup</option>
+                            <option value="SPECIALIST_VISIT">Specialist Visit</option>
+                            <option value="SURGERY">Surgery</option>
+                            <option value="LAB_RESULTS">Lab Results</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editChiefComplaint">Chief Complaint</label>
+                    <textarea id="editChiefComplaint" name="chiefComplaint" rows="2" placeholder="Patient's main concern..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editHistoryOfPresentIllness">History of Present Illness</label>
+                    <textarea id="editHistoryOfPresentIllness" name="historyOfPresentIllness" rows="3" placeholder="Detailed history of current condition..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editPhysicalExamination">Physical Examination</label>
+                    <textarea id="editPhysicalExamination" name="physicalExamination" rows="3" placeholder="Physical examination findings..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editDiagnosis">Diagnosis</label>
+                    <textarea id="editDiagnosis" name="diagnosis" rows="2" placeholder="Medical diagnosis..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editTreatmentPlan">Treatment Plan</label>
+                    <textarea id="editTreatmentPlan" name="treatmentPlan" rows="3" placeholder="Recommended treatment plan..."></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editVitalSigns">Vital Signs</label>
+                        <input type="text" id="editVitalSigns" name="vitalSigns" placeholder="BP: 120/80, HR: 72, Temp: 98.6°F">
+                    </div>
+                    <div class="form-group">
+                        <label for="editAllergies">Allergies</label>
+                        <input type="text" id="editAllergies" name="allergies" placeholder="Known allergies">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editMedications">Current Medications</label>
+                    <textarea id="editMedications" name="medications" rows="2" placeholder="Current medications and dosages..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editNotes">Additional Notes</label>
+                    <textarea id="editNotes" name="notes" rows="2" placeholder="Additional notes or observations..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closeEditRecordModal()" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function applyFilters() {
+            const patientFilter = document.getElementById('patientFilter').value;
+            const recordTypeFilter = document.getElementById('recordTypeFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            
+            const recordItems = document.querySelectorAll('.record-item');
+            
+            recordItems.forEach(item => {
+                let showItem = true;
+                
+                // Filter by patient
+                if (patientFilter && item.getAttribute('data-patient-id') !== patientFilter) {
+                    showItem = false;
+                }
+                
+                // Filter by record type
+                if (recordTypeFilter && item.getAttribute('data-record-type') !== recordTypeFilter) {
+                    showItem = false;
+                }
+                
+                // Filter by date (simplified - you could enhance this)
+                if (dateFilter) {
+                    const recordDate = item.querySelector('.record-date').textContent;
+                    // This is a simplified date filter - you could make it more sophisticated
+                    if (!recordDate.includes(dateFilter)) {
+                        // showItem = false; // Commented out for now as date format matching is complex
+                    }
+                }
+                
+                item.style.display = showItem ? 'block' : 'none';
+            });
+            
+            // Update count
+            const visibleRecords = document.querySelectorAll('.record-item[style="display: block"], .record-item:not([style*="display: none"])').length;
+            document.querySelector('.records-count').textContent = `Showing: ${visibleRecords} records`;
+        }
+        
+        function viewFullRecord(recordId) {
+            fetch(`/doctor/get-medical-record/${recordId}`)
+                .then(response => response.json())
+                .then(record => {
+                    // Populate the view modal with record data
+                    document.getElementById('viewPatientName').textContent = record.patientName || '-';
+                    document.getElementById('viewRecordDate').textContent = record.recordDate || '-';
+                    document.getElementById('viewRecordType').textContent = record.recordType || '-';
+                    document.getElementById('viewDoctorName').textContent = record.doctorName || '-';
+                    document.getElementById('viewVitalSigns').textContent = record.vitalSigns || '-';
+                    document.getElementById('viewAllergies').textContent = record.allergies || '-';
+                    document.getElementById('viewMedications').textContent = record.medications || '-';
+                    document.getElementById('viewChiefComplaint').textContent = record.chiefComplaint || '-';
+                    document.getElementById('viewHistoryOfPresentIllness').textContent = record.historyOfPresentIllness || '-';
+                    document.getElementById('viewPhysicalExamination').textContent = record.physicalExamination || '-';
+                    document.getElementById('viewDiagnosis').textContent = record.diagnosis || '-';
+                    document.getElementById('viewTreatmentPlan').textContent = record.treatmentPlan || '-';
+                    document.getElementById('viewNotes').textContent = record.notes || '-';
+                    
+                    // Show the modal
+                    document.getElementById('viewRecordModal').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error fetching record:', error);
+                    showNotification('Error loading record details', 'error');
+                });
+        }
+        
+        function editRecord(recordId) {
+            fetch(`/doctor/get-medical-record/${recordId}`)
+                .then(response => response.json())
+                .then(record => {
+                    // Populate the edit modal with record data
+                    document.getElementById('editRecordId').value = record.id;
+                    document.getElementById('editPatientName').value = record.patientName || '';
+                    document.getElementById('editRecordType').value = record.recordType || '';
+                    document.getElementById('editChiefComplaint').value = record.chiefComplaint || '';
+                    document.getElementById('editHistoryOfPresentIllness').value = record.historyOfPresentIllness || '';
+                    document.getElementById('editPhysicalExamination').value = record.physicalExamination || '';
+                    document.getElementById('editDiagnosis').value = record.diagnosis || '';
+                    document.getElementById('editTreatmentPlan').value = record.treatmentPlan || '';
+                    document.getElementById('editVitalSigns').value = record.vitalSigns || '';
+                    document.getElementById('editAllergies').value = record.allergies || '';
+                    document.getElementById('editMedications').value = record.medications || '';
+                    document.getElementById('editNotes').value = record.notes || '';
+                    
+                    // Show the modal
+                    document.getElementById('editRecordModal').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error fetching record:', error);
+                    showNotification('Error loading record for editing', 'error');
+                });
+        }
+        
+        function closeViewRecordModal() {
+            document.getElementById('viewRecordModal').style.display = 'none';
+        }
+        
+        function closeEditRecordModal() {
+            document.getElementById('editRecordModal').style.display = 'none';
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const viewModal = document.getElementById('viewRecordModal');
+            const editModal = document.getElementById('editRecordModal');
+            
+            if (event.target == viewModal) {
+                viewModal.style.display = 'none';
+            }
+            if (event.target == editModal) {
+                editModal.style.display = 'none';
+            }
+        }
+        
+        function exportMedicalRecords(format) {
+            const url = `/export/medical-records/${format}`;
+            window.open(url, '_blank');
+        }
+        
+        // Show success/error messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+            const error = urlParams.get('error');
+            
+            if (success) {
+                showNotification(success, 'success');
+            }
+            if (error) {
+                showNotification(error, 'error');
+            }
+        });
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 5px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                background-color: ${type === 'success' ? '#27ae60' : '#e74c3c'};
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
