@@ -1,4 +1,4 @@
-## Hospital Management System
+## MediCore: Hospital Management System
 
 A Spring Boot web application for managing hospital operations such as user access (Admin/Doctor), patients, appointments, departments, rooms, prescriptions, medical records, exports, system settings, and database management. Server-side rendered UI using Thymeleaf.
 
